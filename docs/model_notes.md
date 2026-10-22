@@ -2,49 +2,93 @@
 
 ## Sets and data
 
-- $I$: candidate sites, $i = 1,\dots,12$
-- $J$: demand zones, $j = 1,\dots,40$
-- $S$: demand scenarios, $s = 1,\dots,N$, each with probability $1/N$
-- $f_i$: cost of opening site $i$
-- $K_i$: capacity of site $i$
-- $c_{ij}$: cost of serving one unit of demand from site $i$ to zone $j$
-- $\pi$: penalty per unit of unmet demand
-- $d_{js}$: demand of zone $j$ in scenario $s$
+- $I$: candidate sites, $i=1,\ldots,12$.
+- $J$: demand zones, $j=1,\ldots,40$.
+- $S$: sampled demand scenarios, $s=1,\ldots,N$, each assigned weight $1/N$.
+- $f_i$: cost of opening site $i$.
+- $K_i$: capacity of site $i$.
+- $c_{ij}$: cost of serving one unit from site $i$ to zone $j$.
+- $\pi$: penalty per unit of unmet demand (40 in our city).
+- $d_{js}$: demand in zone $j$ under scenario $s$.
 
 ## Decision variables
 
-- $y_i \in \{0,1\}$: equals 1 if we open site $i$ (first stage).
-- $x_{ijs} \ge 0$: units served from site $i$ to zone $j$ in scenario $s$ (second stage).
-- $u_{js} \ge 0$: units of unmet demand in zone $j$ in scenario $s$ (second stage).
+- $y_i\in\{0,1\}$: 1 if site $i$ is opened, otherwise 0 (first stage).
+- $x_{ijs}\geq0$: units delivered from site $i$ to zone $j$ in scenario $s$ (second stage).
+- $u_{js}\geq0$: unmet demand in zone $j$ in scenario $s$ (second stage).
 
-The sites $y_i$ have no scenario index because we open them once, before demand is known. The service and unmet variables depend on the scenario because we react to the demand that occurs.
+We choose the same sites before demand is known, so $y_i$ has no scenario index. Deliveries and unmet demand can change after each scenario is revealed.
 
-## Model
-
-$$
-\min \; \sum_{i \in I} f_i\, y_i \;+\; \frac{1}{N} \sum_{s \in S} \left[ \sum_{i \in I} \sum_{j \in J} c_{ij}\, x_{ijs} \;+\; \pi \sum_{j \in J} u_{js} \right]
-$$
-
-subject to
+## Objective
 
 $$
-\sum_{i \in I} x_{ijs} + u_{js} = d_{js} \qquad \forall j \in J,\; s \in S \tag{1}
+\min_{y,x,u}\quad \sum_{i\in I}f_i y_i + \frac{1}{N}\sum_{s\in S}\left(\sum_{i\in I}\sum_{j\in J}c_{ij}x_{ijs}+\pi\sum_{j\in J}u_{js}\right).
+$$
+
+We minimize the cost of opening facilities plus the average cost of deliveries and unmet demand across the sampled scenarios.
+
+## Constraints
+
+**(1) Demand balance**
+
+$$
+\sum_{i\in I}x_{ijs}+u_{js}=d_{js}\qquad\forall j\in J,\ s\in S.
+$$
+
+In each scenario, every zone's demand must either be supplied by open sites or counted as unmet demand.
+
+**(2) Facility capacity**
+
+$$
+\sum_{j\in J}x_{ijs}\leq K_i y_i\qquad\forall i\in I,\ s\in S.
+$$
+
+Each site can supply no more than its capacity, and a closed site cannot supply anything.
+
+**(3) Variable domains**
+
+$$
+y_i\in\{0,1\},\qquad x_{ijs}\geq0,\qquad u_{js}\geq0.
+$$
+
+Opening a site is a yes-or-no decision, while delivered and unmet quantities cannot be negative.
+## Full Model
+$$
+\min_{y,x,u}\quad \sum_{i\in I}f_i y_i + \frac{1}{N}\sum_{s\in S}\left(\sum_{i\in I}\sum_{j\in J}c_{ij}x_{ijs}+\pi\sum_{j\in J}u_{js}\right).
+$$
+
+Subject to :
+
+$$
+\sum_{i\in I}x_{ijs}+u_{js}=d_{js}\qquad\forall j\in J,\ s\in S.
 $$
 
 $$
-\sum_{j \in J} x_{ijs} \le K_i\, y_i \qquad \forall i \in I,\; s \in S \tag{2}
+\sum_{j\in J}x_{ijs}\leq K_i y_i\qquad\forall i\in I,\ s\in S.
+$$
+\sum_{j\in J}x_{ijs}\leq K_i y_i\qquad\forall i\in I,\ s\in S.
 $$
 
 $$
-y_i \in \{0,1\}, \quad x_{ijs} \ge 0, \quad u_{js} \ge 0 \tag{3}
+y_i\in\{0,1\},\qquad x_{ijs}\geq0,\qquad u_{js}\geq0.
 $$
 
-## What each part means
+## Complete recourse
 
-- **Objective, first term:** the fixed cost of the sites we open.
-- **Objective, second term:** the average over scenarios of the serving cost plus the penalty for unmet demand. This is the sample average approximation of the expected second-stage cost.
-- **Constraint (1):** in every scenario, each zone's demand is either served by some site or counted as unmet.
-- **Constraint (2):** a site serves at most its capacity, and only if we opened it. This links the first stage to the second.
-- **Constraint (3):** the sites are yes/no decisions, and quantities served and unmet cannot be negative.
-- **Complete recourse:** even if we open no sites, setting $u_{js} = d_{js}$ satisfies constraint (1), so every scenario is always feasible.
-- **Why $\pi > c_{ij}$:** otherwise the model would prefer leaving demand unmet even when an open site has spare capacity.
+Even if no site is opened, the model can set all deliveries to zero and unmet demand equal to demand, so the second-stage constraints remain feasible (assuming demand is nonnegative).
+
+## Model size
+
+There are 12 binary opening variables, $12\times40\times N=480N$ delivery variables, and $40N$ unmet-demand variables. Thus the number of variables is $12+520N$, and the number of demand-balance and capacity constraints is $(40+12)N=52N$.
+
+| Number of scenarios ($N$) | Variables ($12+520N$) | Constraints ($52N$) |
+|---:|---:|---:|
+| 10 | 5,212 | 520 |
+| 50 | 26,012 | 2,600 |
+| 200 | 104,012 | 10,400 |
+
+Variable-domain restrictions are not included in the constraint counts.
+
+## What if the penalty is lower than some service costs?
+
+If the penalty for unmet demand is lower than the cost of serving a customer from a particular site, the model may prefer leaving that demand unmet even when the site has available capacity. This would go against our intention of encouraging the model to serve customers whenever it is cheaper than paying the penalty.
