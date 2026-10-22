@@ -66,8 +66,6 @@ $$
 $$
 \sum_{j\in J}x_{ijs}\leq K_i y_i\qquad\forall i\in I,\ s\in S.
 $$
-\sum_{j\in J}x_{ijs}\leq K_i y_i\qquad\forall i\in I,\ s\in S.
-$$
 
 $$
 y_i\in\{0,1\},\qquad x_{ijs}\geq0,\qquad u_{js}\geq0.
