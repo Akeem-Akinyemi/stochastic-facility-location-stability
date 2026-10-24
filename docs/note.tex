@@ -1,0 +1,131 @@
+\documentclass[11pt,a4paper]{article}
+
+\usepackage[margin=2.5cm]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\title{Stability of Scenario-Based Stochastic Facility Location:\\
+Scenario Generation and Stabilization}
+\author{Akeem Alabi Akinyemi}
+\date{Work in progress}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We study a two-stage stochastic facility location problem in which sites are opened
+before demand is known and are chosen using a finite set of demand scenarios.
+This note will report how stable the chosen sites and their cost are when the
+scenarios change, how scenario generation affects the result, and whether
+stabilization techniques help. This version contains the problem statement and
+the model only.
+\end{abstract}
+
+\section{Problem statement}
+
+Facility location under uncertain demand can be modelled as a two-stage stochastic
+mixed-integer program, in which site-opening decisions are made before demand is
+revealed and are approximated using a finite set of demand scenarios. In practice
+the chosen sites depend strongly on which scenarios are sampled, and plans optimized
+on one sample tend to perform worse on new demand. We investigate three questions:
+\begin{enumerate}
+  \item How unstable are the optimal site selection and cost as the number and
+        sampling of scenarios change, and how large is the gap between promised and
+        realized cost?
+  \item How does the method used to generate demand scenarios (independent, spatially
+        correlated, resampled from data, and reduced by clustering) affect stability
+        and out-of-sample cost?
+  \item Can stabilization techniques (consensus over resampled solutions, a
+        risk-averse CVaR objective, and a regularized version) reduce instability and
+        the out-of-sample gap, and at what cost in expected total cost?
+\end{enumerate}
+Results are compared against a mean-demand deterministic plan, a simple heuristic,
+and a large-sample reference solution.
+
+\section{The two-stage model}
+
+\subsection{Sets and data}
+
+Let $I$ be the set of candidate sites and $J$ the set of demand zones. A finite set
+$S$ of $N$ demand scenarios is given, each with probability $1/N$. The data are
+\begin{center}
+\begin{tabular}{@{}ll@{}}
+\toprule
+Symbol & Meaning \\
+\midrule
+$f_i$    & cost of opening site $i$ \\
+$K_i$    & capacity of site $i$ \\
+$c_{ij}$ & cost of serving one unit of demand from site $i$ to zone $j$ \\
+$\pi$    & penalty per unit of unmet demand \\
+$d_{js}$ & demand of zone $j$ in scenario $s$ \\
+\bottomrule
+\end{tabular}
+\end{center}
+We assume $\pi > \max_{i,j} c_{ij}$, so that serving a unit is always cheaper than
+leaving it unmet when capacity is available.
+
+\subsection{Decision variables}
+
+The first-stage variables are
+\[
+  y_i =
+  \begin{cases}
+    1 & \text{if site } i \text{ is opened},\\
+    0 & \text{otherwise,}
+  \end{cases}
+  \qquad i \in I.
+\]
+They carry no scenario index, because sites are opened once, before demand is known.
+The second-stage variables are $x_{ijs} \ge 0$, the number of units served from site
+$i$ to zone $j$ in scenario $s$, and $u_{js} \ge 0$, the number of units of unmet
+demand in zone $j$ in scenario $s$. These depend on the scenario because they are
+chosen after demand is revealed.
+
+\subsection{Formulation}
+
+The sample average approximation of the problem is
+\begin{align}
+  \min_{y,\,x,\,u} \quad
+    & \sum_{i \in I} f_i\, y_i
+      + \frac{1}{N} \sum_{s \in S} \Bigl[ \sum_{i \in I} \sum_{j \in J} c_{ij}\, x_{ijs}
+      + \pi \sum_{j \in J} u_{js} \Bigr] \label{eq:obj}\\[4pt]
+  \text{s.t.} \quad
+    & \sum_{i \in I} x_{ijs} + u_{js} = d_{js}
+      && \forall j \in J,\ s \in S, \label{eq:balance}\\
+    & \sum_{j \in J} x_{ijs} \le K_i\, y_i
+      && \forall i \in I,\ s \in S, \label{eq:capacity}\\
+    & y_i \in \{0,1\},\quad x_{ijs} \ge 0,\quad u_{js} \ge 0. \label{eq:domain}
+\end{align}
+
+The first term of \eqref{eq:obj} is the fixed cost of the opened sites, paid once.
+The second term is the average, over scenarios, of the serving cost and the penalty
+for unmet demand. Constraint \eqref{eq:balance} requires every unit of demand in a
+zone to be either served or counted as unmet. Constraint \eqref{eq:capacity} limits
+what a site can serve to its capacity, and to zero if it is not opened; it is the
+only constraint linking the first stage to the second.
+
+\subsection{Properties}
+
+\paragraph{Complete recourse.}
+For every choice of $y$ and every scenario, setting $x = 0$ and $u_{js} = d_{js}$
+satisfies \eqref{eq:balance} and \eqref{eq:capacity}. The second-stage problem is
+therefore always feasible, and the model is never infeasible.
+
+\paragraph{Separability.}
+For fixed $y$, the scenarios do not interact: the problem decomposes into $N$
+independent linear programs, one per scenario. Writing $Q(y,s)$ for the optimal value of
+scenario $s$, the objective becomes
+\[
+  \sum_{i \in I} f_i\, y_i + \frac{1}{N} \sum_{s \in S} Q(y,s).
+\]
+This allows a plan $y$ to be evaluated on a large test set by solving one small
+linear program per test scenario.
+
+\paragraph{Size.}
+With $|I|$ sites, $|J|$ zones and $N$ scenarios, the model has $|I|$ binary variables,
+$N|I||J| + N|J|$ continuous variables, and $N(|J| + |I|)$ constraints
+(excluding bounds). For $|I|=12$, $|J|=40$ and $N=50$ this is $12$ binary variables,
+$26{,}000$ continuous variables and $2{,}600$ constraints.
+
+\end{document}
