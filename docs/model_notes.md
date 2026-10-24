@@ -92,7 +92,7 @@ Variable-domain restrictions are not included in the constraint counts.
 If the penalty for unmet demand is lower than the cost of serving a customer from a particular site, the model may prefer leaving that demand unmet even when the site has available capacity. This would go against our intention of encouraging the model to serve customers whenever it is cheaper than paying the penalty.
 
 
-## Toy example for hand verification (Stage G)
+## Toy example for hand verification.
 
 This small example checks our two-stage stochastic facility location formulation before we implement the larger model. We have three candidate sites, four demand zones, and three equally likely scenarios. The first-stage decision is which sites to open; the second-stage decision is how much each open site supplies to each zone, with any remaining demand charged a penalty.
 
@@ -271,3 +271,18 @@ If we optimize against **only this one mean-demand vector**, we evaluate each pl
 | {1,2,3} | 491.67 |
 
 The best plan under mean demand is therefore sites {1,3}. We can check this entry by hand. With sites 1 and 3 open, zones 1 and 2 are served from site 1 (load $40\le50$, cost $20\times2+20\times3=100$), and zones 3 and 4 from site 3 (load $20+\tfrac{35}{3}=\tfrac{95}{3}\le40$, cost $20\times2+\tfrac{35}{3}\times1=\tfrac{155}{3}$). The second-stage cost is $100+\tfrac{155}{3}=\tfrac{455}{3}\approx151.67$, and adding the opening cost $240$
+
+
+## Implementation notes
+
+We implemented the two-stage model in `src/model.py` by building the constraint matrix explicitly and solving it with HiGHS through SciPy.
+
+**Variable order.** All variables sit in one vector: the site-opening variables $y$ first, then the service quantities $x$, then the unmet-demand quantities $u$. The $y$ block comes first because it is the first-stage decision and does not depend on the scenario. The $x$ and $u$ blocks are grouped by scenario, since their values depend on the demand observed.
+
+**Constraint rows.** The matrix has two groups of rows:
+- *Demand balance*, one row per scenario and zone: coefficient 1 on every $x_{ijs}$ serving that zone and on $u_{js}$, with right-hand side $d_{js}$.
+- *Capacity*, one row per scenario and site: coefficient 1 on every $x_{ijs}$ leaving that site and $-K_i$ on $y_i$, with right-hand side 0.
+
+We store the matrix in sparse format because almost all entries are zero. For $N=200$ scenarios on the full instance, a dense matrix would hold about 1.08 billion entries, while only about 200,000 are nonzero.
+
+**Verification.** We check the code against the toy example from the Stage G section (`tests/test_toy.py`). The tests compare the second-stage costs of all eight opening plans with the hand-checked answer key. They also confirm that the full model selects the same sites as direct enumeration of all plans. Run them with `python -m pytest -q`.
