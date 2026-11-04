@@ -285,4 +285,4 @@ We implemented the two-stage model in `src/model.py` by building the constraint 
 
 We store the matrix in sparse format because almost all entries are zero. For $N=200$ scenarios on the full instance, a dense matrix would hold about 1.08 billion entries, while only about 200,000 are nonzero.
 
-**Verification.** We check the code against the toy example from the Stage G section (`tests/test_toy.py`). The tests compare the second-stage costs of all eight opening plans with the hand-checked answer key. They also confirm that the full model selects the same sites as direct enumeration of all plans. Run them with `python -m pytest -q`.
+**Verification.** We check the results from the code against the example we solved manually (`tests/test_toy.py`). The tests compare the second-stage costs of all eight opening plans with the hand-checked answer key. They also confirm that the full model selects the same sites as direct enumeration of all plans. Run them with `python -m pytest -q`.
