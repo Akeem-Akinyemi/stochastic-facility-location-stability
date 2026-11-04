@@ -286,3 +286,40 @@ We implemented the two-stage model in `src/model.py` by building the constraint 
 We store the matrix in sparse format because almost all entries are zero. For $N=200$ scenarios on the full instance, a dense matrix would hold about 1.08 billion entries, while only about 200,000 are nonzero.
 
 **Verification.** We check the results from the code against the example we solved manually (`tests/test_toy.py`). The tests compare the second-stage costs of all eight opening plans with the hand-checked answer key. They also confirm that the full model selects the same sites as direct enumeration of all plans. Run them with `python -m pytest -q`.
+## Initial computational results on the pilot city
+
+The model was tested on the pilot city generated with seed 1, containing 12 candidate facilities and 40 demand zones. Training samples of $N=10$, $50$ and $100$ scenarios were generated using seeds $5000+N$. Each resulting facility-opening plan was evaluated on a common development set of 1,000 scenarios generated with seed 101. This development set was not used to select the facilities.
+
+| Training scenarios ($N$) | Open sites (zero-based indices) | Opening cost | Training objective | Development cost | Development minus training | Solve time |
+|---:|---|---:|---:|---:|---:|---:|
+| 10 | {0,4,8,10} | 3194 | 5707.6 | 5558.6 | -149.0 | 2.1 s |
+| 50 | {0,4,8,10} | 3194 | 5382.4 | 5558.6 | 176.2 | 6.3 s |
+| 100 | {0,4,8,10} | 3194 | 5520.0 | 5558.6 | 38.5 | 15.4 s |
+
+All three runs terminated with the HiGHS optimal status. The same four sites were selected in each run, giving the same opening cost and development-set cost. The training objectives differed because each optimization used a different demand sample. The negative gap for $N=10$ means that its training objective was higher than the estimated cost on the development set; the opposite occurred for $N=50$ and $N=100$. A single gap can have either sign, even though the SAA optimal value has an optimistic bias in expectation over repeated independent training samples.
+
+The selected plan left an estimated 2.4% of total demand unmet on the development scenarios. The average development-set operating and shortage cost was approximately $5558.6-3194=2364.6$. Solve time increased from 2.1 seconds at $N=10$ to 15.4 seconds at $N=100$, indicating that computational time needs to be considered when choosing the number of repetitions in larger experiments. These three runs alone do not establish decision stability.
+
+## Preliminary checks of facility-selection stability
+
+To examine whether the initial agreement between solutions persists across different demand samples, repeated-sample checks were reported for the pilot city. Each repetition used a newly generated training sample and resolved the facility-location model. The following results are preliminary reference results; they have not yet been independently reproduced in the local project run reported above.
+
+| Training scenarios ($N$) | Repetitions | Selections of {0,4,8,10} | Other selections |
+|---:|---:|---:|---:|
+| 10 | 20 | 16 | Four other plans, once each |
+| 30 | 8 | 6 | {0,3,4,8} and {0,3,4,8,10}, once each |
+
+The main plan was selected in 80% of the reported runs at $N=10$ and 75% at $N=30$. The other runs selected different facility combinations, suggesting that the opening decision is not identical across all samples. These small sets of repetitions are useful as a preliminary check, but they are insufficient for estimating selection frequencies precisely or establishing how stability changes with sample size.
+
+A second preliminary check compared the plan {0,4,8,10} with plans formed by adding one closed site, dropping one open site, or swapping one open site for one closed site. There are 44 such neighbouring plans, or 45 plans including the original. Each was evaluated using the same 300 development scenarios generated with seed 101.
+
+| Open sites (zero-based indices) | Estimated cost on 300 scenarios |
+|---|---:|
+| {0,4,8,10} | 5547.7 |
+| {0,2,4,10} | 5600.0 |
+| {0,4,6,10} | 5615.6 |
+| {0,4,9,10} | 5625.3 |
+
+Among the plans checked, {0,4,8,10} had the lowest estimated cost. The nearest alternative in this comparison cost about $(5600.0-5547.7)/5547.7\times100\approx0.94\%$ more. This suggests that some changes in facility selection may have only a small effect on out-of-sample cost. The comparison does not establish global optimality over every possible opening plan, and the cost estimates are specific to the 300 evaluation scenarios.
+
+These observations motivate measuring both decision stability (which facilities are selected and how frequently) and cost stability (how much the evaluated cost changes). The repeated-sampling and neighbouring-plan checks should be rerun locally before treating their numerical results as verified findings.
