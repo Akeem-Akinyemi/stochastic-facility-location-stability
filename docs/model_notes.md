@@ -323,3 +323,9 @@ A second preliminary check compared the plan {0,4,8,10} with plans formed by add
 Among the plans checked, {0,4,8,10} had the lowest estimated cost. The nearest alternative in this comparison cost about $(5600.0-5547.7)/5547.7\times100\approx0.94\%$ more. This suggests that some changes in facility selection may have only a small effect on out-of-sample cost. The comparison does not establish global optimality over every possible opening plan, and the cost estimates are specific to the 300 evaluation scenarios.
 
 These observations motivate measuring both decision stability (which facilities are selected and how frequently) and cost stability (how much the evaluated cost changes). The repeated-sampling and neighbouring-plan checks should be rerun locally before treating their numerical results as verified findings.
+
+## Exhaustive verification of the facility(opening solution)
+
+An additional verification was carried out on the full 12-site, 40-zone instance using five demand scenarios. All the  4,096 possible facility opening plans were evaluated using  a separate second stage linear programs, and the resulting costs were compared with the mixed-integer model.
+
+The minimum cost obtained by enumeration was 4736.6643, which corresponds to facilities {0, 3, 4, 8}. The mixed-integer model selected the same facilities and returned the same objective value. The second-best plan, {0, 3, 4, 7}, had a cost of 4740.4698, only about 0.08% higher. This close result suggests that small changes in the sampled demand could affect which facility-opening plan is selected.
