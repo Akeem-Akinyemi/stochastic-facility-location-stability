@@ -25,14 +25,14 @@ def neighbour_costs(city, y, scenarios):
         q = [second_stage_cost(p, city.capacity, city.service_cost, city.penalty, d) for d in scenarios]
         return city.open_cost @ p + np.mean(q)
 
-    plans = {tuple(np.flatnonzero(y)): y}
+    plans = {tuple(np.flatnonzero(y).tolist()): y}
     for i in range(len(y)):                      # add or drop one site
         p = y.copy(); p[i] = 1 - p[i]
-        plans[tuple(np.flatnonzero(p))] = p
+        plans[tuple(np.flatnonzero(p).tolist())] = p
     for i in np.flatnonzero(y):                  # swap one open site for one closed site
         for k in np.flatnonzero(1 - y):
             p = y.copy(); p[i] = 0; p[k] = 1
-            plans[tuple(np.flatnonzero(p))] = p
+            plans[tuple(np.flatnonzero(p).tolist())] = p
     return sorted((cost(p), plan) for plan, p in plans.items())
 
 

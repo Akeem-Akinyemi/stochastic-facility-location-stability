@@ -14,6 +14,7 @@ import numpy as np
 from scipy.optimize import Bounds, LinearConstraint, linprog, milp
 from scipy.sparse import coo_matrix
 
+MIP_REL_GAP = 1e-9   # relative optimality gap used by every mixed-integer solve
 
 def build_saa(f, K, c, pi, D):
     """
@@ -83,15 +84,15 @@ def build_saa(f, K, c, pi, D):
     ub[:I] = 1
     return cost, A, np.array(lower), np.array(upper), integrality, Bounds(0, ub)
 
-
 def solve_saa(f, K, c, pi, D, time_limit=None):
     """
     Solve the SAA model. Returns a dict with the chosen sites y, the objective
-    value (the cost the sample promises), and the solver status.
+    value (the cost the sample promises), the full solution vector x, the solver
+    status and message, and the relative MIP gap.
     """
     I = len(f)
     cost, A, lo, hi, integ, bounds = build_saa(f, K, c, pi, D)
-    options = {"mip_rel_gap": 1e-9}
+    options = {"mip_rel_gap": MIP_REL_GAP}
     if time_limit is not None:
         options["time_limit"] = time_limit
     res = milp(cost, constraints=LinearConstraint(A, lo, hi),
@@ -99,8 +100,8 @@ def solve_saa(f, K, c, pi, D, time_limit=None):
     if res.x is None:
         raise RuntimeError(f"solver failed: {res.message}")
     return {"y": np.round(res.x[:I]).astype(int), "objective": res.fun,
-            "status": res.status, "message": res.message}
-
+            "x": res.x, "status": res.status, "message": res.message,
+            "mip_gap": getattr(res, "mip_gap", None)}
 
 def second_stage_cost(y, K, c, pi, d):
     """
