@@ -94,8 +94,21 @@ evidence only. The scientific design (cities, scenario counts, metrics, hypothes
 is frozen. This computational rule is the only thing that can reduce the N = 200
 repetitions, and it is fixed here before any main-city result exists.
 
-Timing decision (to be completed before the main run):
-workers = ____, N = 200 repetitions = ____, date = ____.
+Timing decision:
+workers = 4, N = 200 repetitions = 50, date = 2026-11-16.
+
+Pilot timing results (N = 200, four repetitions):
+1 worker: 184 s
+2 workers: 93 s
+4 workers: 65 s
+
+Machine: 14 logical processors, 15.40 GB RAM.
+Estimated peak memory: approximately 1.6 GB
+(combined-process peak not independently verified).
+
+The four-worker configuration had the shortest batch time.
+Projected runtime for 50 repetitions: 13.5 minutes.
+The four-hour fallback was not triggered.
 
 ### Solver settings and failures
 
