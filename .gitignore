@@ -20,3 +20,7 @@ __pycache__/
 *.fls
 *.fdb_latexmk
 *.synctex.gz
+# Generated experiment outputs
+/results/*.csv
+/results/*.json
+/results/*.jsonl
