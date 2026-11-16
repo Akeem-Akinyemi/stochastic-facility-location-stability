@@ -200,5 +200,5 @@ experiments.
 ## 9. Deviations log
 
 | Date | Change | Reason |
-|---|---|---|
-| | | |
+| 2026-11-16 | `.gitignore` updated after the tag (commit d9ffc1ee) to exclude generated experiment outputs. | No effect on code or design. |
+| 2026-11-16 | Peak combined memory was not systematically measured for each worker configuration. An approximate observation of 1.6 GB was reported, but its scope and peak status were not verified. Four workers were selected based on the fastest observed batch time and available system RAM; strict compliance with the 70% memory criterion remains unverified. | Memory was not measured as section 4 prescribes. Peak memory will be monitored during the main run, and the result will be added to this log. |
