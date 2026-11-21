@@ -1,0 +1,2 @@
+{"event": "start", "time": "2026-11-21T12:30:46", "sizes": [10, 50, 100], "reps": 50, "workers": 4, "time_limit": 900.0, "retry": false, "runs_to_do": 150, "environment": {"python": "3.14.7", "numpy": "2.5.4", "scipy": "1.18.1", "highspy": "1.15.1", "git_commit": "a6d8a3be", "uncommitted_changes": false, "untracked_source_files": []}}
+{"event": "end", "runs_done": 150, "wall_seconds": 392.6}
