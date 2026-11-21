@@ -97,8 +97,10 @@ def _git(*args):
 def _environment():
     """
     Package versions and git state, recorded in the session log. uncommitted_changes is
-    True if tracked files differ from the last commit, False if they match, and None if
-    git could not tell. Untracked files (such as result files) are ignored on purpose.
+    True if tracked files differ from the last commit or if there are untracked files
+    under src/ or tests/ (code that a commit hash would not identify), False if neither,
+    and None if git could not tell. Other untracked files, such as result files, are
+    ignored on purpose.
     """
     def version(package):
         try:
@@ -106,11 +108,13 @@ def _environment():
         except metadata.PackageNotFoundError:
             return None
     status = _git("status", "--porcelain", "--untracked-files=no")
+    untracked = _git("ls-files", "--others", "--exclude-standard", "--", "src", "tests")
+    dirty = None if status is None or untracked is None else bool(status or untracked)
     return {"python": platform.python_version(), "numpy": version("numpy"),
             "scipy": version("scipy"), "highspy": version("highspy"),
             "git_commit": _git("rev-parse", "--short", "HEAD"),
-            "uncommitted_changes": None if status is None else bool(status)}
-
+            "uncommitted_changes": dirty,
+            "untracked_source_files": untracked.splitlines() if untracked else []}
 
 def _append_log(path, record):
     """Append one JSON line to an append-only log."""

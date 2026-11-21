@@ -101,4 +101,53 @@ def test_require_clean_blocks_modified_or_unknown_code(tmp_path, monkeypatch, di
     else:
         with pytest.raises(RuntimeError):
             run_experiment(1, [3], 1, out, workers=1, require_clean=True)
-        assert not out.exists()                      # nothing was written
+        assert not out.exists()
+
+
+def test_untracked_source_files_count_as_uncommitted(tmp_path, monkeypatch):
+    import subprocess
+
+    import src.experiment as experiment
+
+    def git(*args):
+        subprocess.run(
+            ["git", "-c", "commit.gpgsign=false", *args],
+            cwd=tmp_path,
+            check=True,
+            capture_output=True,
+        )
+
+    git("init")
+    git("config", "user.email", "t@example.com")
+    git("config", "user.name", "t")
+
+    (tmp_path / "src").mkdir()
+    (tmp_path / "src" / "a.py").write_text("x = 1\n")
+
+    git("add", ".")
+    git("commit", "-m", "init")
+    monkeypatch.chdir(tmp_path)
+
+    # A clean repository should be detected as clean.
+    assert experiment._environment()["uncommitted_changes"] is False
+
+    # An untracked result file should not make the repository dirty.
+    (tmp_path / "results").mkdir()
+    (tmp_path / "results" / "out.csv").write_text("a\n")
+    assert experiment._environment()["uncommitted_changes"] is False
+
+    # An untracked source file should make the repository dirty.
+    (tmp_path / "src" / "b.py").write_text("y = 2\n")
+    env = experiment._environment()
+
+    assert env["uncommitted_changes"] is True
+    assert env["untracked_source_files"] == ["src/b.py"]
+
+    # Committing the new source file should restore the clean state.
+    git("add", "src/b.py")
+    git("commit", "-m", "add b")
+    assert experiment._environment()["uncommitted_changes"] is False
+
+    # Modifying a tracked source file should make the repository dirty.
+    (tmp_path / "src" / "a.py").write_text("x = 2\n")
+    assert experiment._environment()["uncommitted_changes"] is True

@@ -199,13 +199,8 @@ experiments.
 
 ## 9. Deviations log
 
-## 9. Deviations log
+Post-freeze decisions, implementation changes, computational observations,
+and deviations are recorded in `docs/deviations.md`.
 
-| Date | Change | Reason |
-|---|---|---|
-| 2026-11-16 | `.gitignore` updated after the tag (commit d9ffc1ee) to exclude generated experiment outputs. | No effect on code or design. |
-| 2026-11-16 | Peak combined memory was not systematically measured for each worker configuration. An approximate observation of 1.6 GB was reported, but its scope and peak status were not verified. Four workers were selected based on the fastest observed batch time and available system RAM; strict compliance with the 70% memory criterion remained unverified. | Memory was not measured as section 4 prescribes. Monitoring was planned for the main run. |
-| 2026-11-17 | The sampled peak combined working-set memory of all Python processes during the 4-worker main run was 1.77 GB (sampled every 2 seconds, idle baseline 0.05 GB), below the 70% limit (10.78 GB of 15.40 GB RAM). | Main-run monitoring provides supporting evidence that memory was not a constraint for 4 workers. The earlier timing probes remain unverified, and brief peaks between samples may have been missed. |
-| 2026-11-17 | Four N = 100 solves (reps 26, 27, 29, 30) took approximately 279–291 seconds, compared with typical solve times of 10–25 seconds. All returned status 0. | A temporary system slowdown is suspected but unconfirmed. The unusually long solve times will be retained in the raw data and reported transparently; medians will be used for timing summaries. |
-| 2026-11-16 | Main-city experiment completed: 250/250 runs with solver status 0, using 4 workers. Total wall time was 1251.8 seconds. | No failed runs or retries were required. |
-| 2026-11-16 | Combined Python-process working-set memory was monitored every 2 seconds during the main run. Highest observed value was 1.77 GB, below the 10.78 GB threshold. | Provides supporting evidence for the four-worker configuration. Short-lived peaks may have been missed; earlier pilot memory measurements remain unverified. |
+The original frozen experimental protocol is preserved under
+Git tag `protocol-v1`.
