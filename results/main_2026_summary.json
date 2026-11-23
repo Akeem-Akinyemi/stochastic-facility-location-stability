@@ -1,0 +1,31 @@
+{
+  "city_seed": 2026,
+  "evaluation_set": "final",
+  "evaluation_seed": 202,
+  "n_evaluation_scenarios": 10000,
+  "reference_plan": [
+    0,
+    3,
+    4,
+    6,
+    8
+  ],
+  "reference_realized_cost": 6287.093678662435,
+  "benchmarks": {
+    "mean_demand_plan": 6684.257446828384,
+    "greedy_plan": 7150.728973664487
+  },
+  "distinct_plans_evaluated": 12,
+  "runs": 150,
+  "check_max_abs_difference": 7.275957614183426e-12,
+  "plans_checked_against_recourse_lp": 5,
+  "environment": {
+    "python": "3.14.7",
+    "numpy": "2.5.4",
+    "scipy": "1.18.1",
+    "highspy": "1.15.1",
+    "git_commit": "21a44c4f",
+    "uncommitted_changes": false,
+    "untracked_source_files": []
+  }
+}

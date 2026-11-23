@@ -88,3 +88,11 @@ The session metadata also records the detected untracked source-file names.
 The changes documented here do not alter the preregistered scientific hypotheses or experimental settings.
 
 The original protocol remains preserved under `protocol-v1`. Any future departures from the experimental design must be documented explicitly, including their reasons and potential effects on interpretation.
+
+## 21 November 2026 — City 2026 experiment interrupted and resumed
+
+**Observation:** The city 2026 experiment (N = 10, 50, 100; 50 repetitions each) was interrupted after 20 runs (session 1, started 13:10, commit a6d8a3be, no end record) and resumed with the same command (session 2, started 13:18, 130 runs, commit 21a44c4f). The final file has 150 rows, one per (N, repetition), with no duplicates and no failures.
+
+**Code identity:** `git diff a6d8a3be 21a44c4f -- src tests` is empty; the intervening commit changed only result files (city 2025).
+
+**Scientific impact:** None. The runner is resumable by design and each run's training sample depends only on (city, N, repetition). All 150 expected runs were completed without duplicate identifiers or solver failures. The source code and tests were unchanged between sessions.
