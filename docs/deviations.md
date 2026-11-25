@@ -96,3 +96,85 @@ The original protocol remains preserved under `protocol-v1`. Any future departur
 **Code identity:** `git diff a6d8a3be 21a44c4f -- src tests` is empty; the intervening commit changed only result files (city 2025).
 
 **Scientific impact:** None. The runner is resumable by design and each run's training sample depends only on (city, N, repetition). All 150 expected runs were completed without duplicate identifiers or solver failures. The source code and tests were unchanged between sessions.
+
+## 25 November 2026 — Post-hoc paired comparisons and cross-city consolidation
+
+### Change
+
+The paired-comparison and cross-city analysis scripts were developed after the main and robustness experiments had been completed and evaluated.
+
+Reporting paired evaluation uncertainty was specified in the original protocol. The additional comparison involving the most frequently selected non-reference plan was motivated by the near-tie observed in city 2025.
+
+The paired-comparison analysis compares the selected reference plan with:
+
+- The most frequently selected non-reference plan.
+- The mean-demand benchmark.
+- The greedy benchmark.
+
+All comparisons use common final evaluation scenarios.
+
+The cross-city analysis consolidates the saved per-city metrics, summaries and paired-comparison results into:
+
+- A full results table covering all 11 experimental settings.
+- A common-scenario-count table covering nine experimental settings.
+- A consolidated paired-comparison table.
+- Numerical consistency checks.
+- A comparative figure.
+
+The consolidation does not generate additional scenarios or rerun optimization experiments.
+
+### Statistical interpretation
+
+The additional comparisons are exploratory. The compared plans were selected without using the final evaluation scenarios. The paired intervals therefore quantify Monte Carlo uncertainty in the expected cost differences between those specific plans under the specified demand model.
+
+The choice of which comparisons to report was made after examining the experimental results. Potential effects of this post-hoc reporting choice are not adjusted for.
+
+The intervals do not establish global optimality or justify generalization beyond the investigated city instances.
+
+### Scientific impact
+
+No original experimental setting, optimization run, reference plan or research hypothesis was modified.
+
+The additional analyses provide further interpretation of the existing experimental results without changing the original experimental design.
+
+### Validation
+
+The complete test suite passed all 91 tests.
+
+The cross-city consistency checks passed on the saved summaries covering:
+
+- Three synthetic cities.
+- 11 experimental settings.
+- 550 optimization runs.
+- Nine common experimental settings.
+- Nine paired-comparison rows.
+
+No validation warnings were reported.
+
+These checks establish consistency between the saved outputs rather than independently revalidating every optimization run.
+
+### Additional observation
+
+In city 2026, the most frequently selected non-reference plan coincides with the mean-demand benchmark.
+
+Both comparison labels are retained for transparency and flagged as referring to the same alternative configuration. They are not treated as independent comparisons.
+
+### Implementation and outputs
+
+Analysis scripts:
+
+- `src/paired_comparisons.py`
+- `src/cross_city.py`
+
+Associated tests:
+
+- `tests/test_paired_comparisons.py`
+- `tests/test_cross_city.py`
+
+Consolidated outputs:
+
+- `results/cross_city_full.csv`
+- `results/cross_city_common.csv`
+- `results/cross_city_paired.csv`
+- `results/cross_city_checks.json`
+- `results/cross_city_fig.png`

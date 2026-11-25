@@ -1,0 +1,19 @@
+{
+  "cities": [
+    2024,
+    2025,
+    2026
+  ],
+  "total_settings": 11,
+  "total_runs": 550,
+  "common_settings": 9,
+  "paired_rows": 9,
+  "duplicated_alternative_labels_by_city": {
+    "2024": 0,
+    "2025": 0,
+    "2026": 2
+  },
+  "validation": "passed",
+  "warnings": [],
+  "note": "Reference plans are best among evaluated candidates, not globally certified optima."
+}
