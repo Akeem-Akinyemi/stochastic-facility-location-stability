@@ -133,7 +133,7 @@ The intervals do not establish global optimality or justify generalization beyon
 
 ### Scientific impact
 
-No original experimental setting, optimization run, reference plan or research hypothesis was modified.
+There is no original experimental setting, optimization run, reference plan or research hypothesis was modified.
 
 The additional analyses provide further interpretation of the existing experimental results without changing the original experimental design.
 
@@ -178,3 +178,67 @@ Consolidated outputs:
 - `results/cross_city_paired.csv`
 - `results/cross_city_checks.json`
 - `results/cross_city_fig.png`
+
+## 26 November 2026 — Exploratory reference-selection analysis
+
+### Change
+
+An additional statistical analysis was introduced after completion and examination of the main and robustness experiments to quantify uncertainty in reference-plan selection frequencies.
+
+The analysis includes:
+
+- Newcombe method 10 confidence intervals for differences in reference-selection probabilities between adjacent scenario counts.
+- Bonferroni adjustment within each city, using a family-level significance level of 0.05.
+- One-sided Cochran–Armitage trend tests using logarithmic scenario-count scores.
+
+The confidence levels for individual adjusted intervals are 98.75% for city 2024 and 97.5% for cities 2025 and 2026.
+
+### Statistical interpretation
+
+The analyses are exploratory and were not specified in the original frozen protocol.
+
+The confidence intervals are approximate. The multiplicity adjustment applies to adjacent comparisons within each city and does not cover the trend tests or the post-hoc selection of the statistical methodology.
+
+The probabilities are conditional on the fixed city instance, selected reference plan and specified scenario-sampling procedure.
+
+### Validation
+
+Reference-selection counts were derived directly from the individual evaluated runs and reconciled with the saved per-city metrics.
+
+Validation covered:
+
+- Three synthetic city instances.
+- 11 experimental settings.
+- 550 optimization runs.
+- 50 unique repetitions per experimental setting.
+- Repetition identifiers from 0 to 49.
+- Successful solver completion for all runs.
+- Eight adjacent scenario-count contrasts.
+- Three trend tests.
+
+All 28 additional automated tests passed. The complete project test suite passed all 119 tests.
+
+### Findings
+
+All three cities exhibited positive trends in reference-selection probability under the specified exploratory trend tests.
+
+Two adjacent comparisons had Bonferroni-adjusted confidence intervals that excluded zero:
+
+- City 2024, from 100 to 200 scenarios.
+- City 2026, from 10 to 50 scenarios.
+
+The findings provide additional empirical support for structural decision stability improving with scenario count within the investigated instances. They do not establish that every adjacent increase produces a statistically distinguishable improvement.
+
+### Scientific impact
+
+No original optimization run, city instance, reference plan, research hypothesis or experimental setting was modified.
+
+The analysis uses existing experimental outputs and does not generate additional demand scenarios or solve additional optimization models.
+
+### Implementation and outputs
+
+- `src/exploratory_share_analysis.py`
+- `tests/test_exploratory_share_analysis.py`
+- `results/exploratory_share_contrasts.csv`
+- `results/exploratory_share_trends.csv`
+- `results/exploratory_share_checks.json`

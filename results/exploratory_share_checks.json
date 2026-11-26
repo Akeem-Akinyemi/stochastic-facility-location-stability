@@ -1,0 +1,18 @@
+{
+  "status": "exploratory, not part of the frozen protocol",
+  "cities": [
+    2024,
+    2025,
+    2026
+  ],
+  "family_alpha_per_city": 0.05,
+  "family_size_per_city": {
+    "2024": 4,
+    "2025": 2,
+    "2026": 2
+  },
+  "contrasts": 8,
+  "trend_tests": 3,
+  "trend_test": "Cochran-Armitage, scores log N, one-sided (increasing share)",
+  "counts_checked": "all expected runs present once with status 0; reconciled with saved metrics"
+}
